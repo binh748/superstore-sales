@@ -16,6 +16,6 @@ I achieved a test RMSE of $15k, which is 0.57 standard deviations of the test se
 ## Technologies
 
 * Python
-* Statsmodel
+* Statsmodels
 * Seaborn
 * Scikit-learn
