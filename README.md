@@ -4,6 +4,8 @@ To practice time series modeling, I built a SARIMA model to forecast monthly sup
 
 I achieved a test RMSE of $15k, which is 0.57 standard deviations of the test set's monthly sales, using a (0, 0, 0) (0, 1, 1, 12) SARIMA model. 
 
+To learn more, see my [blog post](https://binhhoang.io/blog/forecasting-monthly-sales/). 
+
 ## Table of Contents
 
 * [Visualizations](#visualizations)
