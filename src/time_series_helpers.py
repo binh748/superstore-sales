@@ -1,14 +1,12 @@
 """This module contains helper functions for time series modeling."""
 
 import pandas as pd
-import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 from sklearn.metrics import mean_squared_error
 import statsmodels.tsa.stattools as ts
 import statsmodels.tsa.api as smt # smt stands for statsmodels time series I think
-from statsmodels.stats.stattools import durbin_watson as db
 
 # Changed this Dickey-Fuller test (DFT) function based on Metis instructor's code
 def df_test(time_series):
@@ -40,12 +38,13 @@ def df_test(time_series):
     mean = plt.plot(roll_mean, color='red', label='Rolling mean')
     std = plt.plot(roll_std, color='black', label='Rolling std. dev.')
     plt.legend(loc='best')
-    plt.title('Rolling mean, rolling std. dev., and original time series')
+    plt.title('Rolling mean, rolling std. dev., and original time series',
+        fontweight='bold', fontsize=14, pad=26)
     sns.despine()
     ax.yaxis.set_major_formatter(
         matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
-    ax.set_xlabel('Order date grouped by month')
-    ax.set_ylabel('Sales')
+    ax.set_xlabel('Month')
+    ax.set_ylabel('Sales (USD)')
     plt.show()
 
 # Took Metis instructor's helper plot function for ACF/PACF visualizations
@@ -93,25 +92,25 @@ def plot_pred(time_series, time_series_pred,
     sales_orig_plot = plt.plot(time_series, color='blue', label=orig_label)
     sales_pred_plot = plt.plot(time_series_pred, color='orange', label=pred_label)
     plt.legend(loc='best')
-    plt.title(title)
+    plt.title(title, fontweight='bold', fontsize=14, pad=26)
     sns.despine()
     ax.yaxis.set_major_formatter(
         matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
-    ax.set_xlabel('Order date grouped by month')
-    ax.set_ylabel('Sales')
+    ax.set_xlabel('Month')
+    ax.set_ylabel('Sales (USD)')
     plt.show()
 
 
+# I removed the Durbin-Watson test because according to Wikipedia,
+# the Durbin-Watson statistic is biased for ARMA models in that the autocorrelation
+# is underestimated. There appears to be a way to correct the bias by using a different
+# statistic, but that is beyond the scope of this project.
 def residual_tests(model):
     """Prints results of various statistical tests on time series model residuals.
 
     Jarque-Bera normality test: Null hypothesis is residuals are normally distributed.
-
     Ljung-Box serial correlation test: Null hypothesis is no serial correlations
     in residuals.
-
-    Durbin-Watson serial correlation test: Want a score between 1 and 3. 2 is ideal score.
-
     Heteroskedasticity test: Null hypothesis is no heteroskedasticity.
 
     Args:
@@ -130,12 +129,9 @@ def residual_tests(model):
     lb_p = lb_p[-1]
 
     het_val, het_p = model.test_heteroskedasticity('breakvar')[0]
-    durbin_watson = db(model.filter_results. \
-        standardized_forecasts_error[0, model.loglikelihood_burn:])
 
     print(f'{"Jarque-Bera normality test:": <35} val={jb_val:.2f} p={jb_p:.2f}')
     print(f'{"Ljung-Box serial corr. test:": <35} val={lb_val:.2f} p={lb_p:.2f}')
-    print(f'{"Durbin-Watson serial corr. test:": <35} d={durbin_watson:.2f}')
     print(f'{"Heteroskedasticity test:": <35} val={het_val:.2f} p={het_p:.2f}')
 
 
@@ -153,7 +149,7 @@ def simple_validation(model, X_train, y_val):
     y_val_pred = model.predict(start=len(X_train), end=len(X_train)+len(y_val)-1, dynamic=True)
     plot_pred(y_val, y_val_pred,
               orig_label='y_val', pred_label='y_val_pred',
-              title='y_val v. y_val_pred')
+              title='Validation: y_val v. y_val_pred')
     val_rmse = mean_squared_error(y_val, y_val_pred, squared=False)
     print(f'Val RMSE: {val_rmse:.2f}')
 
@@ -173,6 +169,6 @@ def test_model(model, X_train_val, y_test):
                                 end=len(X_train_val)+len(y_test)-1, dynamic=True)
     plot_pred(y_test, y_test_pred,
               orig_label='y_test', pred_label='y_test_pred',
-              title='y_test v. y_test_pred')
+              title='Test: y_test v. y_test_pred')
     test_rmse = mean_squared_error(y_test, y_test_pred, squared=False)
     print(f'Test RMSE: {test_rmse:.2f}')
